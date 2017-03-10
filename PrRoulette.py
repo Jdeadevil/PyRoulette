@@ -2,7 +2,6 @@ import random
 import pprint
 import sys
 
-bankroll = 0
 spin = 0
 straight_ups = []
 reds = []
@@ -18,6 +17,7 @@ first_dozen = []
 second_dozen = []
 third_dozen = []
 streets = []
+bankroll = 0
 
 initial_board = """     -------------------------------------- 
     | |3|6|9|12|15|18|21|24|27|30|33|36|3rd|
@@ -85,21 +85,49 @@ for i in range (1, 37, 3):
 def initial_print_board():
 
     print(initial_board)
-
-def instructions(x):
-
-    print("Enter the number of credits you want to play with\n")
-
-    try:
-        x = int(input())
-    except ValueError or NameError:
-        print("This isn't a number\n")
-        instructions(bankroll)
   
-def calculate(x):
-    print('') # Literally just a placeholder for now
+def calculate(next_move):
+            
+    if next_move == '':
+        spin_wheel_and_modify_board()
+    elif next_move == 'leave':
+        sys.exit()
 
-def spin_wheel_and_modify_board(x):
+    next_move = next_move.split(', ')
+
+    temp_next_move = {}
+
+    for i in range(len(next_move)):
+        temp_next_move[next_move[i]] = i
+        if list(temp_next_move.keys())[i][:6] == 'street':
+            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][6:]
+        if list(temp_next_move.keys())[i][:3] == 'odd':
+            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][3:]
+        if list(temp_next_move.keys())[i][:4] == 'even':
+            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][4:]
+        if list(temp_next_move.keys())[i][:4] == 'high':
+            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][4:]
+        if list(temp_next_move.keys())[i][:3] == 'low':
+            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][3:]
+        if list(temp_next_move.keys())[i][:9] == 'first_col':
+            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][9:]
+        if list(temp_next_move.keys())[i][:10] == 'second_col':
+            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][10:]
+        if list(temp_next_move.keys())[i][:9] == 'third_col':
+            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][9:]
+        if list(temp_next_move.keys())[i][:9] == 'first_doz':
+            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][9:]
+        if list(temp_next_move.keys())[i][:10] == 'second_doz':
+            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][10:]
+        if list(temp_next_move.keys())[i][:9] == 'third_doz':
+            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][9:]
+        if list(temp_next_move.keys())[i][:11] == 'straight_up':
+            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][11:]
+        
+    
+    print(temp_next_move)
+
+def spin_wheel_and_modify_board():
     global spin
     spin = random.randint(0,36)
 
@@ -133,17 +161,19 @@ first_column(20), third_column(20)
 
 """)
     print("\n" + "Winning Number: " + str(spin))
-    print("Bankroll: " + str(x))
+    print("Bankroll: " + str(bankroll) + "\n")
 
+    global next_move
     next_move = input('Your move: ')
 
-    calculate()
-    if next_move == '':
-        spin_wheel_and_modify_board()
-    elif next_move == 'leave':
-        sys.exit()
+    calculate(next_move)
 
 
-instructions(bankroll)
-spin_wheel_and_modify_board(bankroll)
-calculate(bankroll)
+while bankroll == 0:        
+    try:
+        print("Enter the number of credits you want to play with\n")
+        bankroll = int(input())
+    except ValueError or NameError:
+        print("This isn't a number\n")
+    
+spin_wheel_and_modify_board()
