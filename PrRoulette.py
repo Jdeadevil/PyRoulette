@@ -123,9 +123,20 @@ def calculate(next_move):
             temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][9:]
         if list(temp_next_move.keys())[i][:11] == 'straight_up':
             temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][11:]
-        
-    
-    print(temp_next_move)
+
+    bet_amount = list(temp_next_move.values())
+
+    for i in range(len(bet_amount)):
+        bet_amount[i] = int(bet_amount[i][1:-1])
+
+    bet_amount = sum(bet_amount)
+
+    if bet_amount > bankroll:
+        print("That number is higher than your bankroll! Try again.")
+        next_move = input()
+        calculate(next_move)
+
+    spin_wheel_and_modify_board()
 
 def spin_wheel_and_modify_board():
     global spin
