@@ -134,6 +134,7 @@ def calculate(next_move):
     for i in range(len(bet_amount)):
         bet_amount[i] = int(bet_amount[i][1:-1])
 
+        
     bet_amount = sum(bet_amount)
 
     if bet_amount > bankroll:
