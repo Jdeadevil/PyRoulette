@@ -124,10 +124,15 @@ def calculate(next_move):
         if list(temp_next_move.keys())[i][:11] == 'straight_up':
             temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][11:]
 
+    new_list = {}
+
     lengths = list(temp_next_move.values())
 
     for i in range(len(lengths)):
         lengths[i] = len(lengths[i])
+
+    for i in range(len(temp_next_move)):
+        new_list[next_move[i][:-lengths[i]]] = int(list(temp_next_move.keys())[i][-lengths[i]+1:-1])
    
     bet_amount = list(temp_next_move.values())
 
@@ -142,10 +147,7 @@ def calculate(next_move):
         next_move = input()
         calculate(next_move)
 
-    print("Dict Values:" + str(lengths))
-    print(temp_next_move[next_move[i]])
-    print("Dict: " + str(temp_next_move))
-    print("List: " + str(list(temp_next_move)))
+
 
 def spin_wheel_and_modify_board():
     global spin
