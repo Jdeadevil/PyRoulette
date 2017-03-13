@@ -94,24 +94,27 @@ def calculate(next_move):
     elif next_move == 'leave':
         sys.exit()
 
-    next_move = next_move.split(', ')
+    next_move = next_move.split(',')
 
     temp_next_move = {}
-    
+
     for i in range(len(next_move)):
-        numberRegex = re.compile(r'\(\d+\)')
-        double_numberRegex = re.compile(r'\(\d+,\s\d+\)')
-        if next_move[i][0:6] == 'street' or next_move[i][0:11] == 'straight_up':
-            double_mo = double_numberRegex.search(next_move[i])
-            length_of_values = len(double_mo.group())
-            temp_next_move[next_move[i][:-length_of_values]] = double_mo.group().strip('()')
-        mo = numberRegex.search(next_move[i])
-        length_of_value = len(mo.group())
-        temp_next_move[next_move[i][:-length_of_value]] = mo.group().strip('()')
+        formatRegex = re.compile(r'(\w+)(\(\d+\))|(\w+)(\(\d+-\d+\))')
+        mo = formatRegex.search(next_move[i])
+        mo_single_name = mo.group(1)
+        mo_single_format = mo.group(2)
+        mo_double_name = mo.group(3)
+        mo_double_format = mo.group(4)
+        if mo_single_format == None:
+            temp_next_move[mo_double_name] = mo_double_format.strip('()')
+        elif mo_double_format == None:
+            temp_next_move[mo_single_name] = mo_single_format.strip('()')
+
                 
         
         
     
+
     bet_amount = list(temp_next_move.values())
 
     
@@ -123,7 +126,7 @@ def calculate(next_move):
         #next_move = input()
         #calculate(next_move)
 
-    # Example Move: high(10), low(20)
+    # Example Move: high(10), low(20), street(20-100)
 
     print(temp_next_move)
 
