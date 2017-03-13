@@ -1,6 +1,7 @@
 import random
 import pprint
 import sys
+import re
 
 spin = 0
 straight_ups = []
@@ -96,58 +97,35 @@ def calculate(next_move):
     next_move = next_move.split(', ')
 
     temp_next_move = {}
-
+    
     for i in range(len(next_move)):
-        temp_next_move[next_move[i]] = i
-        if list(temp_next_move.keys())[i][:6] == 'street':
-            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][6:]
-        if list(temp_next_move.keys())[i][:3] == 'odd':
-            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][3:]
-        if list(temp_next_move.keys())[i][:4] == 'even':
-            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][4:]
-        if list(temp_next_move.keys())[i][:4] == 'high':
-            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][4:]
-        if list(temp_next_move.keys())[i][:3] == 'low':
-            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][3:]
-        if list(temp_next_move.keys())[i][:9] == 'first_col':
-            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][9:]
-        if list(temp_next_move.keys())[i][:10] == 'second_col':
-            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][10:]
-        if list(temp_next_move.keys())[i][:9] == 'third_col':
-            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][9:]
-        if list(temp_next_move.keys())[i][:9] == 'first_doz':
-            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][9:]
-        if list(temp_next_move.keys())[i][:10] == 'second_doz':
-            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][10:]
-        if list(temp_next_move.keys())[i][:9] == 'third_doz':
-            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][9:]
-        if list(temp_next_move.keys())[i][:11] == 'straight_up':
-            temp_next_move[next_move[i]] = list(temp_next_move.keys())[i][11:]
-
-    new_list = {}
-
-    lengths = list(temp_next_move.values())
-
-    for i in range(len(lengths)):
-        lengths[i] = len(lengths[i])
-
-    for i in range(len(temp_next_move)):
-        new_list[next_move[i][:-lengths[i]]] = int(list(temp_next_move.keys())[i][-lengths[i]+1:-1])
-   
+        numberRegex = re.compile(r'\(\d+\)')
+        double_numberRegex = re.compile(r'\(\d+,\s\d+\)')
+        if next_move[i][0:6] == 'street' or next_move[i][0:11] == 'straight_up':
+            double_mo = double_numberRegex.search(next_move[i])
+            length_of_values = len(double_mo.group())
+            temp_next_move[next_move[i][:-length_of_values]] = double_mo.group().strip('()')
+        mo = numberRegex.search(next_move[i])
+        length_of_value = len(mo.group())
+        temp_next_move[next_move[i][:-length_of_value]] = mo.group().strip('()')
+                
+        
+        
+    
     bet_amount = list(temp_next_move.values())
 
-    for i in range(len(bet_amount)):
-        bet_amount[i] = int(bet_amount[i][1:-1])
+    
+       
+    #bet_amount = sum(bet_amount)
 
-        
-    bet_amount = sum(bet_amount)
+    #if bet_amount > bankroll:
+        #print("That number is higher than your bankroll! Try again.")
+        #next_move = input()
+        #calculate(next_move)
 
-    if bet_amount > bankroll:
-        print("That number is higher than your bankroll! Try again.")
-        next_move = input()
-        calculate(next_move)
+    # Example Move: high(10), low(20)
 
-
+    print(temp_next_move)
 
 def spin_wheel_and_modify_board():
     global spin
@@ -167,20 +145,16 @@ def spin_wheel_and_modify_board():
     print("""Instructions: Type the desired bet followed by what you're
 willing to bet in parenthesis, followed by commas. For example:
 first_column(20), third_column(20)
-
     Odds, Evens: odd(x), even(x) (1:1)
     High, Low: high(x), low(x) (1:1)
     First, Second, Third Column: first_col(x), second_col(x), third_col(x) (3:1)
     First, Second, Third Dozen: first_doz(x), second_doz(x), third_doz(x) (3:1)
     Straight Up: xx(x) (36:1)
     Street: (x, x) (11:1)
-
     For streets, enter which street (1 - 11) you would like to bet on,
     followed by your desired bet.
-
     Leave the text field blank for a free spin!
     Type 'leave' to close software.
-
 """)
     print("\n" + "Winning Number: " + str(spin))
     print("Bankroll: " + str(bankroll) + "\n")
@@ -197,5 +171,5 @@ while bankroll == 0:
         bankroll = int(input())
     except ValueError or NameError:
         print("This isn't a number\n")
-    
+   
 spin_wheel_and_modify_board()
