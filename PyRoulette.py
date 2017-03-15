@@ -24,7 +24,7 @@ street = []
 
 for i in range (1, 37, 3):
     
-    streets.append(straight_ups[i:i+3]) # Nested Array of all
+    street.append(list(range(37))[i:i+3]) # Nested Array of all
                                         # Eleven Streets (11:1)
 
 landed_on_dict['street'] = street
@@ -34,6 +34,7 @@ multiply_by_dict = {'straight_up': 35,
                     'black': 2,
                     'even': 2,
                     'odd': 2,
+                    'high':2,
                     'low': 2,
                     'first_col': 3,
                     'second_col': 3,
@@ -68,7 +69,7 @@ def initial_print_board():
 
     print(initial_board)
   
-def calculate(next_move):
+def calculate(next_move, bankroll):
             
     if next_move == '':
         spin_wheel_and_modify_board()
@@ -107,13 +108,18 @@ def calculate(next_move):
         if name != 'street' and name != 'straight_up':
             if name in temp_next_move.keys():
                 if spin in landed_on_dict[name]:
-                    bankroll += (temp_next_move[name]) * multiply_by_dict[name])
-        else if name == 'street':
+                    bankroll += (int(temp_next_move[name]) * multiply_by_dict[name])
+        elif name == 'street':
+            dashIndex = bet_placed.find('-')
+            if name in temp_next_move.keys():
+                if spin in landed_on_dict[name][:dashIndex]:
+                    bankroll += (int(temp_next_move[name][dashIndex+1:]) * multiply_by_dict[name])
+            
             
              
                 
        
-    bet_amount = sum(bet_amount)
+
 
     #if bet_amount > bankroll:
         #print("That number is higher than your bankroll! Try again.")
@@ -122,10 +128,10 @@ def calculate(next_move):
 
     # Example Move: high(10), low(20), street(20-100)
 
-    print(temp_next_move)
-    print(bet_amount)
+    print(bankroll)
+    
 
-def spin_wheel_and_modify_board():
+def spin_wheel_and_modify_board(bankroll):
     global spin
     spin = random.randint(0,36)
 
@@ -160,7 +166,7 @@ first_column(20), third_column(20)
     global next_move
     next_move = input('Your move: ')
 
-    calculate(next_move)
+    calculate(next_move, bankroll)
 
 
 while bankroll == 0:        
@@ -170,4 +176,4 @@ while bankroll == 0:
     except ValueError or NameError:
         print("This isn't a number\n")
    
-spin_wheel_and_modify_board()
+spin_wheel_and_modify_board(bankroll)
