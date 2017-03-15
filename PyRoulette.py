@@ -4,20 +4,44 @@ import sys
 import re
 
 spin = 0
-straight_ups = []
-reds = []
-blacks = []
-evens = []
-odds = []
-low = []
-high = []
-first_column = []
-second_column = []
-third_column = []
-first_dozen = []
-second_dozen = []
-third_dozen = []
-streets = []
+
+landed_on_dict = {
+    'straight_up': list(range(37)),
+    'red': [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36],
+    'black': [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 21, 22, 24, 26, 28, 29, 31, 33, 35],
+    'even': list(range(2, 37, 2)),
+    'odd' : list(range(1, 37, 2)),     
+    'low': list(range(19)),           
+    'high': list(range(19, 37)),      
+    'first_col': list(range(1, 35, 3)),
+    'second_col': list(range(2, 36, 3)),
+    'third_col': list(range(3, 37, 3)),
+    'first_doz': list(range(1, 13)),
+    'second_doz': list(range(13, 26)),
+    'third_doz': list(range(26,37))
+    }
+street = []
+
+for i in range (1, 37, 3):
+    
+    streets.append(straight_ups[i:i+3]) # Nested Array of all
+                                        # Eleven Streets (11:1)
+
+landed_on_dict['street'] = street
+
+multiply_by_dict = {'straight_up': 35,
+                    'red': 2,
+                    'black': 2,
+                    'even': 2,
+                    'odd': 2,
+                    'low': 2,
+                    'first_col': 3,
+                    'second_col': 3,
+                    'third_col': 3,
+                    'first_doz': 3,
+                    'second_doz': 3,
+                    'third_doz': 3,
+                    'street': 11}
 bankroll = 0
 
 initial_board = """     -------------------------------------- 
@@ -39,49 +63,6 @@ number_dictionary = {52: '3', 54: '6', 56: '9', 58: '12', 61: '15', 64: '18',
                      169: '32', 172: '35', 232: '1', 234: '4', 236: '7', 238: '10',
                      241: '13', 244: '16', 247: '19', 250: '22', 253: '25', 256: '28',
                      259: '31', 262: '34'}
-
-for i in range (0, 37):
-    straight_ups.append(i)  # Straight up
-
-    if i in [1, 3, 5, 7, 9, 12, 14, 16, 18,
-             19, 21, 23, 25, 27, 30, 32, 34, 36]:
-        reds.append(i)      # Red
-    else:
-        blacks.append(i)    # Black
-
-for i in range(1, 37):
-    if i % 2 == 0:
-        evens.append(i)     # Even Numbers
-    else:
-        odds.append(i)      # Odd Numbers
-
-for i in range(1, 37):
-    if i < 18:
-        low.append(i)       # Low Numbers
-    else:
-        high.append(i)      # High Numbers
-
-for i in range(1, 35, 3):
-    first_column.append(i)  # First Column
-
-for i in range(2, 36, 3):
-    second_column.append(i) # Second Column
-
-for i in range(3, 37, 3):
-    third_column.append(i)  # Third Column
-
-for i in range(1, 37):
-    if i < 12:
-        first_dozen.append(i)   # First Dozen
-    elif i > 12 and i < 25:
-        second_dozen.append(i)  # Second Dozen
-    else:
-        third_dozen.append(i)   # Third Dozen
-
-for i in range (1, 37, 3):
-    
-    streets.append(straight_ups[i:i+3]) # Nested Array of all
-                                        # Eleven Streets (11:1)
 
 def initial_print_board():
 
@@ -110,16 +91,29 @@ def calculate(next_move):
         elif mo_double_format == None:
             temp_next_move[mo_single_name] = mo_single_format.strip('()')
 
-                
-        
-        
-    
-
     bet_amount = list(temp_next_move.values())
 
-    
+    for i in range(len(temp_next_move)):
+        if bet_amount[i].find('-') != -1:
+            bet_amount[i] = bet_amount[i][bet_amount[i].find('-')+1:]
+        bet_amount[i] = int(bet_amount[i])
+            
+    for bet_name, bet_placed in temp_next_move.items():
+        if bet_placed.find('-') > -1:         
+            dashIndex = bet_placed.find('-')
+            temp_next_move[bet_name] = temp_next_move[bet_name][:dashIndex]           
+            
+    for name, sList in landed_on_dict.items():
+        if name != 'street' and name != 'straight_up':
+            if name in temp_next_move.keys():
+                if spin in landed_on_dict[name]:
+                    bankroll += (temp_next_move[name]) * multiply_by_dict[name])
+        else if name == 'street':
+            
+             
+                
        
-    #bet_amount = sum(bet_amount)
+    bet_amount = sum(bet_amount)
 
     #if bet_amount > bankroll:
         #print("That number is higher than your bankroll! Try again.")
@@ -129,6 +123,7 @@ def calculate(next_move):
     # Example Move: high(10), low(20), street(20-100)
 
     print(temp_next_move)
+    print(bet_amount)
 
 def spin_wheel_and_modify_board():
     global spin
@@ -152,9 +147,9 @@ first_column(20), third_column(20)
     High, Low: high(x), low(x) (1:1)
     First, Second, Third Column: first_col(x), second_col(x), third_col(x) (3:1)
     First, Second, Third Dozen: first_doz(x), second_doz(x), third_doz(x) (3:1)
-    Straight Up: xx(x) (36:1)
-    Street: (x, x) (11:1)
-    For streets, enter which street (1 - 11) you would like to bet on,
+    Straight Up: (x-x) (36:1)
+    Street: (x-x) (11:1)
+    For streets, enter which street you would like to bet on,
     followed by your desired bet.
     Leave the text field blank for a free spin!
     Type 'leave' to close software.
