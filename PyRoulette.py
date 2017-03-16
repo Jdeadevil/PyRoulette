@@ -4,6 +4,7 @@ import sys
 import re
 
 spin = 0
+next_move = ''
 
 landed_on_dict = {
     'straight_up': list(range(37)),
@@ -121,9 +122,8 @@ def calculate(next_move, bankroll):
         calculate(next_move)
     else:
         bankroll -= sum(bet_amount)
-        print("Your move: ")
-        next_move = input()
-
+        print(bankroll)
+        return bankroll
     # Example Move: high(10), low(20), street(20-100)
     
 def spin_wheel_and_modify_board(bankroll):
@@ -170,4 +170,5 @@ while bankroll == 0:
     except ValueError or NameError:
         print("This isn't a number\n")
 
-
+while next_move != 'leave':
+    spin_wheel_and_modify_board(bankroll)
