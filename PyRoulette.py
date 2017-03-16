@@ -114,23 +114,18 @@ def calculate(next_move, bankroll):
             if name in temp_next_move.keys():
                 if spin in landed_on_dict[name][:dashIndex]:
                     bankroll += (int(temp_next_move[name][dashIndex+1:]) * multiply_by_dict[name])
-            
-            
-             
-                
-       
-
-
-    #if bet_amount > bankroll:
-        #print("That number is higher than your bankroll! Try again.")
-        #next_move = input()
-        #calculate(next_move)
+                   
+    if sum(bet_amount) > bankroll:
+        print("That number is higher than your bankroll! Try again.")
+        next_move = input()
+        calculate(next_move)
+    else:
+        bankroll -= sum(bet_amount)
+        print("Your move: ")
+        next_move = input()
 
     # Example Move: high(10), low(20), street(20-100)
-
-    print(bankroll)
     
-
 def spin_wheel_and_modify_board(bankroll):
     global spin
     spin = random.randint(0,36)
@@ -168,12 +163,11 @@ first_column(20), third_column(20)
 
     calculate(next_move, bankroll)
 
-
 while bankroll == 0:        
     try:
         print("Enter the number of credits you want to play with\n")
         bankroll = int(input())
     except ValueError or NameError:
         print("This isn't a number\n")
-   
-spin_wheel_and_modify_board(bankroll)
+
+
