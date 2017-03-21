@@ -46,6 +46,21 @@ multiply_by_dict = {'straight_up': 35,
                     'street': 11}
 bankroll = 0
 
+instructions = """Instructions: Type the desired bet followed by what you're
+willing to bet in parenthesis, followed by commas. For example:
+first_column(20), third_column(20)
+    Odds, Evens: odd(x), even(x) (1:1)
+    High, Low: high(x), low(x) (1:1)
+    First, Second, Third Column: first_col(x), second_col(x), third_col(x) (3:1)
+    First, Second, Third Dozen: first_doz(x), second_doz(x), third_doz(x) (3:1)
+    Straight Up: (x-x) (36:1)
+    Street: (x-x) (11:1)
+    For streets, enter which street you would like to bet on,
+    followed by your desired bet.
+    Leave the text field blank for a free spin!
+    Type 'leave' to close software.
+"""
+
 initial_board = """     -------------------------------------- 
     | |3|6|9|12|15|18|21|24|27|30|33|36|3rd|
     | -------------------------------------|
@@ -73,7 +88,7 @@ def initial_print_board():
 def calculate(next_move, bankroll):
             
     if next_move == '':
-        spin_wheel_and_modify_board()
+        spin_wheel_and_modify_board(bankroll)
     elif next_move == 'leave':
         sys.exit()
 
@@ -81,17 +96,22 @@ def calculate(next_move, bankroll):
 
     temp_next_move = {}
 
-    for i in range(len(next_move)):
-        formatRegex = re.compile(r'(\w+)(\(\d+\))|(\w+)(\(\d+-\d+\))')
-        mo = formatRegex.search(next_move[i])
-        mo_single_name = mo.group(1)
-        mo_single_format = mo.group(2)
-        mo_double_name = mo.group(3)
-        mo_double_format = mo.group(4)
-        if mo_single_format == None:
-            temp_next_move[mo_double_name] = mo_double_format.strip('()')
-        elif mo_double_format == None:
-            temp_next_move[mo_single_name] = mo_single_format.strip('()')
+    try:
+        for i in range(len(next_move)):
+            formatRegex = re.compile(r'(\w+)(\(\d+\))|(\w+)(\(\d+-\d+\))')
+            mo = formatRegex.search(next_move[i])
+            mo_single_name = mo.group(1)
+            mo_single_format = mo.group(2)
+            mo_double_name = mo.group(3)
+            mo_double_format = mo.group(4)
+            if mo_single_format == None:
+                temp_next_move[mo_double_name] = mo_double_format.strip('()')
+            elif mo_double_format == None:
+                temp_next_move[mo_single_name] = mo_single_format.strip('()')
+    except AttributeError:
+        print("Move not recognised, try typing your move in again in.")
+        next_move = input()
+        calculate(next_move, bankroll)        
 
     bet_amount = list(temp_next_move.values())
 
@@ -115,14 +135,22 @@ def calculate(next_move, bankroll):
             if name in temp_next_move.keys():
                 if spin in landed_on_dict[name][:dashIndex]:
                     bankroll += (int(temp_next_move[name][dashIndex+1:]) * multiply_by_dict[name])
+        elif name == 'straight_up':
+            dashIndex = bet_placed.find('-')
+            if name in temp_next_move.keys():
+                if temp_next_move[name][:dashIndex] == spin:
+                    bankroll += (int(temp_next_move[name][dashIndex+1:]) * multiply_by_dict[name])
+                
+                    
                    
     if sum(bet_amount) > bankroll:
         print("That number is higher than your bankroll! Try again.")
         next_move = input()
         calculate(next_move)
     else:
-        bankroll -= sum(bet_amount)
-        print(bankroll)
+        global x
+        x = bankroll
+        x -= sum(bet_amount)
         return bankroll
     # Example Move: high(10), low(20), street(20-100)
     
@@ -140,28 +168,21 @@ def spin_wheel_and_modify_board(bankroll):
         
     temp_initial_board = ''.join(temp_initial_board)
 
-    print(temp_initial_board)
-    print("""Instructions: Type the desired bet followed by what you're
-willing to bet in parenthesis, followed by commas. For example:
-first_column(20), third_column(20)
-    Odds, Evens: odd(x), even(x) (1:1)
-    High, Low: high(x), low(x) (1:1)
-    First, Second, Third Column: first_col(x), second_col(x), third_col(x) (3:1)
-    First, Second, Third Dozen: first_doz(x), second_doz(x), third_doz(x) (3:1)
-    Straight Up: (x-x) (36:1)
-    Street: (x-x) (11:1)
-    For streets, enter which street you would like to bet on,
-    followed by your desired bet.
-    Leave the text field blank for a free spin!
-    Type 'leave' to close software.
-""")
-    print("\n" + "Winning Number: " + str(spin))
-    print("Bankroll: " + str(bankroll) + "\n")
-
     global next_move
     next_move = input('Your move: ')
 
+    try:
+        print(temp_initial_board)
+        print(instructions)
+        print("\n" + "Winning Number: " + str(spin))
+    except TypeError:
+        print("Move not recognised, try typing your move in again in.")
+        next_move = input()
+        spin_wheel_and_modify_board(bankroll)
+
     calculate(next_move, bankroll)
+
+    print("Bankroll: " + str(x) + "\n")
 
 while bankroll == 0:        
     try:
@@ -170,5 +191,8 @@ while bankroll == 0:
     except ValueError or NameError:
         print("This isn't a number\n")
 
+print(instructions)
+
 while next_move != 'leave':
     spin_wheel_and_modify_board(bankroll)
+    bankroll = x
